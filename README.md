@@ -24,9 +24,12 @@
 [**Live Demo :: Link**](https://incubated-geek-cc.github.io/symbol2image)
 
 ### ✍ Read related posts here
-[**Article :: Link**](https://geek-cc.medium.com/convert-font-emojis-to-image-files-with-custom-dimensions-using-vanilla-javascript-d276703567b6)
+
+[**Article :: Link :: Generate Icon Images From Font Symbols Using Vanilla JavaScript**](https://geek-cc.medium.com/generate-icon-images-from-font-symbols-using-vanilla-javascript-b8da434378ee)
 <br>
-[**Article :: Link**](https://medium.com/weekly-webtips/how-to-resize-an-image-using-client-side-javascript-and-html5-canvas-2fff73d15d0)
+[**Article :: Link :: Convert Font Emojis to Image Files with Custom Dimensions using Vanilla JavaScript 👩‍💻**](https://geek-cc.medium.com/convert-font-emojis-to-image-files-with-custom-dimensions-using-vanilla-javascript-d276703567b6)
+<br>
+[**Article :: Link :: How to Resize an Image using Client-Side JavaScript and HTML5 Canvas**](https://medium.com/weekly-webtips/how-to-resize-an-image-using-client-side-javascript-and-html5-canvas-2fff73d15d0)
 
 
 ### 📌 Features
