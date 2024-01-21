@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang='en' class='notranslate' translate='no'>
+  <head>
+    <meta name='google' content='notranslate' />
+    <meta http-equiv='Content-Language' content='en' />
+    <meta charset='UTF-8'>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name='description' content='Client-side web app that enables emojis to be exported as images of any dimensions stated.'>
+    <meta name='keywords' content='JavaScript,CSS,Bootstrap,HTML,Canvas,Image,Resize,Emoji'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' /> 
+    <title>symbol2image | 🕳️ Export symbol as image.</title>
+    <meta name='msapplication-TileColor' content='#ffffff' />
+    <meta name='theme-color' content='#ffffff' />
+    <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='mobile-web-app-capable' content='yes' />
+    <meta name='HandheldFriendly' content='True' />
+    <meta name='MobileOptimized' content='320' />  
+    <meta http-equiv='Content-Security-Policy' content='upgrade-insecure-requests' />
+    <link href='css/bootstrap-4.5.2.min.css' rel='stylesheet' type='text/css' />
+    <link href='css/offcanvas.css' rel='stylesheet' type='text/css' />
+    <style>
+        html,body {
+          padding:0;
+          margin:0;
+          overflow: hidden;
+        }
+        body {
+            height:100vh;
+            width:100vw;
+            overflow-y: auto;
+        }
+        input[type=file] {
+          display:none;
+        }
+        .table td, .table th {
+            padding: 0.25rem;
+        }
+        .table th {
+            vertical-align: middle;
+        }
+        .custom-card-title {
+            font-variant: all-petite-caps;
+        }
+        #canvasDisplayCell,
+        #canvasDisplay {
+            vertical-align: middle;
+            background:transparent;
+            overflow:hidden;
+        }
+        #canvasDisplay {
+            overflow:auto;
+        }
+        .previewedImage {
+            border:1px dotted #6c757d;
+            width:352px;
+            height:352px;
+            margin:2.5px auto;
+        }
+        .symbol {
+            font-family:Segoe UI Symbol;
+        }
+        .unicode {
+            font-family:Cambria;
+        }
+        .emoji {
+            font-family:Segoe UI Emoji;
+        }
+        .noselect {
+          -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+             -khtml-user-select: none; /* Konqueror HTML */
+               -moz-user-select: none; /* Old versions of Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                    user-select: none; /* Non-prefixed version, currently
+                                          supported by Chrome, Edge, Opera and Firefox */
+        }
+        .form-control {
+            display: inline-block;
+            width: auto;
+        }
+        .custom-old-style-num {
+            font-variant: oldstyle-nums;
+        }
+        #resizedIconW, 
+        #resizedIconH {
+            font-size: x-small;
+        }
+        #setColor {
+            width:-webkit-fill-available;
+        }
+    </style>
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div class='container-fluid h-100 p-2'>
+            <div class='bg-light border p-2'>
+                Created by <a href='https://medium.com/@geek-cc' target='_blank'>the Girl with a ribbon</a> ξ(🎀˶❛◡❛) | © Copyright <span id='yearDisplay'></span>
+            </div>
+            <div class='row'>
+                <div class='col-sm-5 col-12 h-100'>
+                  <div class="card rounded-0 h-100">
+                    <div class="card-header rounded-0 pl-1 pb-2 pt-2 pr-1 bg-light noselect">ξ(🎀˶❛◡❛) <span class='custom-card-title'>symbol2image</span></div>
+                    <div id="selectionDIV" class="card-body p-1">
+
+                        <div class='row w-100 m-0 border'>
+                            <div class='col-sm-3 col-3 m-1 pl-0 pr-0 text-center'>
+                                <div id='textIcon' class='border border-muted pl-1 pr-1 pt-2 pb-2 m-0 w-100 symbol'></div>
+                            </div>
+                            <div class='col-sm-5 col-5 m-1 pl-0 pr-0 text-left'>
+                                <button id='copyTextIcon' type='button' value='textIcon' class='btn btn-sm btn-outline-dark rounded-circle ml-1 mr-1 mt-1 mb-1 pt-1 pb-1 pl-2 pr-2 emoji'>📋</button><span class='unicode'>ᶜᵒᵖʸ ᵃˢ ᵗᵉˣᵗ</span>
+                            </div>
+                            <div class='col-sm-3 col-3 m-1 pl-0 pr-0 text-center'>
+                                <input id="setColor" type="color" class="form-control rounded-0" value='#00BCF2' /> <label for="setColor"><span class='custom-card-title custom-old-style-num'><span class='unicode'>ᵖⁱᶜᵏ ᶜᵒˡᵒʳ</span></label>
+                            </div>
+                        </div>
+                       
+                        <hr>
+
+                        <div class='row w-100 m-0 border'>
+                            <div class='col-sm-11 col-12 m-1 pl-0 pr-0 text-center'>
+                                <h3 class='small p-1 m-0 text-secondary text-left'>Select Category:</h3>
+                                <form class='p-0 m-0'>
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="smileys_n_ppl" checked />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>😃</small><span class='unicode'>ˢᵐⁱˡᵉʸˢ</span>
+                                            <small class='symbol'>🚶</small><span class='unicode'>ᵖᵉᵒᵖˡᵉ</span>
+                                        </small>
+                                      </div>
+                                      <select id="smileys_n_ppl" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="animals_n_nature" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>🐫</small><span class='unicode'>ʷⁱˡᵈˡⁱᶠᵉ</span>
+                                            <small class='symbol'>🌵</small><span class='unicode'>ⁿᵃᵗᵘʳᵉ</span>
+                                        </small>
+                                      </div>
+                                      <select id="animals_n_nature" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="fnb" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>🍔</small><span class='unicode'>ᶠᵒᵒᵈ</span>
+                                            <small class='symbol'>🍴</small><span class='unicode'>ᶜᵘᵗˡᵉʳʸ</span>
+                                        </small>
+                                      </div>
+                                      <select id="fnb" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="activity" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>🎨</small><span class='unicode'>ʰᵒᵇᵇⁱᵉˢ</span>
+                                        </small>
+                                      </div>
+                                      <select id="activity" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="commute_n_places" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>🌇</small><span class='unicode'>ˢᶜᵉⁿᵉʳʸ</span>
+                                            <small class='symbol'>✈️</small><span class='unicode'>ᵗʳᵃᵛᵉˡ</span>
+                                        </small>
+                                      </div>
+                                      <select id="commute_n_places" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="objects" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>💡</small><span class='unicode'>ᵒᵇʲᵉᶜᵗˢ</span>
+                                            <small class='symbol'>🔍</small><span class='unicode'>ᵗᵒᵒˡˢ</span>
+                                        </small>
+                                      </div>
+                                      <select id="objects" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="symbols" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>⚠️</small><span class='unicode'>ˢʸᵐᵇᵒˡˢ</span> 
+                                        </small>
+                                      </div>
+                                      <select id="symbols" class="custom-select custom-card-title rounded-0 w-50 symbol"></select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm w-100">
+                                      <div class="input-group-prepend w-50">
+                                        <div class="input-group-text rounded-0 pt-0 pb-0 w-25">
+                                          <input name="category" class="symbol-category" type="radio" value="custom" />
+                                        </div>
+                                        <small class="input-group-text w-75">
+                                            <small class='symbol'>⌶⎁</small><span class='unicode'>ᶜᵘˢᵗᵒᵐ ⁱⁿᵖᵘᵗ ˢʸᵐᵇᵒˡ</span>
+                                        </small>
+                                      </div>
+                                      <select id="custom" class="custom-select custom-card-title rounded-0 w-25 symbol"></select>
+                                      <input id="customInput" class="form-control custom-card-title rounded-0 symbol w-25" />
+                                    </div>
+                                 </form>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class='col-sm-7 col-12 h-100'>
+                  <div class="card rounded-0 h-100">
+                    <div class="card-header rounded-0 p-1 bg-light noselect">
+                        <div class="custom-control custom-switch m-0 float-left">
+                            <input id="equalAspectRatio" type="checkbox" class="custom-control-input" checked /> <label class="custom-control-label" for="equalAspectRatio"><span class='custom-card-title custom-old-style-num'><span class='unicode'>ᵃˢᵖᵉᶜᵗ ʳᵃᵗⁱᵒ 1∶1</span></label>
+                        </div>
+
+                        <span class='small pl-1 pr-1'><small class='emoji'>📏</small><small class='text-dark'>Width</small></span>
+                        <input id='resizedIconW' type='number' step='5' min='25' class='form-control form-control-sm rounded-0 border border-secondary m-0 pt-0 pb-0' />
+                        <span class='small pl-1 pr-1'><small class='text-dark'>px</small></span>
+                        <span class='small pt-0 pb-0'><strong class='text-dark'>×</strong></span>
+                        <span class='small pl-1 pr-1'><small class='emoji'>📏</small><small class='text-dark'>Height</small></span>
+                        <input id='resizedIconH' type='number' step='5' min='25' class='form-control form-control-sm rounded-0 border border-secondary m-0 pt-0 pb-0' />
+                        <span class='small pl-1 pr-1'><small class='text-dark'>px</small></span>
+
+                        <button id='saveImageBtn' type='button' value='textIcon' class='btn btn-sm btn-outline-dark rounded-circle m-0 pt-1 pb-1 pl-2 pr-2 float-right emoji small'>💾</button><span class='unicode float-right'>ˢᵃᵛᵉ ᵃˢ ⁱᵐᵃᵍᵉ</span>
+                    </div>
+                    <div id="resizeDIV" class="card-body p-1">
+                        <div id='canvasDisplayCell' class='m-0 w-100 h-100 text-center'>
+                            <small id='faviconDimensionsDisplay' class='text-muted m-0 p-0'></small>
+                            <div id='canvasDisplay' class='text-muted m-0 p-0'></div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </div>            
+        </div>
+
+        <script src='js/polyfill.js'></script>
+        <script src='js/ie10-viewport-bug-workaround.js'></script>
+        <script src='js/bootstrap-native-v4.js'></script>
+        <script src='js/emojis.js'></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async() => {
+                console.log('DOMContentLoaded');
+                const yearDisplay=document.getElementById('yearDisplay');
+                yearDisplay.innerHTML=new Date().getFullYear();
+
+                const custom={
+                    '⌨':'-'
+                };
+                let faviconSize=500;
+
+                const setColor=document.querySelector('#setColor');
+
+                const categoryTitleArr=['smileys_n_ppl','animals_n_nature','fnb','activity','commute_n_places','objects','symbols','custom'];
+                const categoryOptionsArr=[smileys_n_ppl,animals_n_nature,fnb,activity,commute_n_places,objects,symbols,custom];
+
+                const ddlMapper = {};
+                
+                function populatedDDL(ddlId) {
+                    let selectIconDDL=document.getElementById(ddlId);
+                    let i=0;
+                    let icons=ddlMapper[ddlId];
+                    let iconText='';
+                    for(let icon in icons) {
+                        let iconOption=document.createElement('option');
+                        iconOption.value=icon;
+                        iconText=icons[icon];
+                        iconOption.text=`${iconText} ${icon}`;
+                        if(i==0) {
+                            iconOption.setAttribute('selected',true);
+                        }
+                        selectIconDDL.add(iconOption, i[i++]);
+                    }
+                    selectIconDDL.addEventListener('change', async(evt)=>{
+                        categorySelection.forEach(async(node) => {
+                            if(node.value==selectIconDDL.id && node.checked) {
+                                faviconIcon=selectIconDDL.value;
+                                canvas.getContext('2d').clearRect(0, 0,w,h);
+                               
+                                iconData = await generateFavicon(resizedIconW.value,resizedIconH.value,faviconIcon); 
+                                saveImageBtn.value=iconData;
+                                faviconTag.href=iconData;
+
+                                await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+                            }
+                        });
+                    },false);
+                }
+                
+
+                function init() {
+                    let opts=document.querySelector('#objects').children;
+                    for(let opt of opts) {
+                        opt.remove();
+                    }
+                    for(let index=0;index<categoryTitleArr.length;index++) {
+                        let key=categoryTitleArr[index];
+                        let val=categoryOptionsArr[index];
+                        ddlMapper[key]=val;
+                        populatedDDL(key);
+                    }
+                }
+                init();
+
+                document.querySelector('#customInput').addEventListener('input', (evt)=> {
+                    document.querySelector('#custom').children[0].value=evt.currentTarget.value;
+                    document.querySelector('#custom').children[0].text=evt.currentTarget.value;
+
+                    document.querySelector('#custom').selectedIndex=0;
+                    document.querySelector('input[value="custom"]').click();
+                });
+
+                var requiredHeight=document.getElementById('selectionDIV').clientHeight;
+                document.getElementById('resizeDIV')['style']['height']=`${requiredHeight}px`;
+                function selectCopyText(node) {
+                    let isVal=true;
+                    node = document.getElementById(node);
+                    try {
+                        node.select();
+                        try {
+                            node.setSelectionRange(0, 99999); /* For mobile devices */
+                        } catch(err0) {}
+                    } catch(err) {
+                        isVal=false;
+                        console.log(err.message);
+                        if (document.body.createTextRange) {
+                            const range = document.body.createTextRange();
+                            range.moveToElementText(node);
+                            range.select();
+                        } else if (window.getSelection) {
+                            const selection = window.getSelection();
+                            const range = document.createRange();
+                            range.selectNodeContents(node);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        } else {
+                            console.warn('Could not select text in node: Unsupported browser.');
+                        }
+                    } finally {
+                        navigator.clipboard.writeText(isVal ? node.value : node.innerText);
+                    }
+                }
+
+                const copyTextIcon=document.getElementById('copyTextIcon');
+
+                const resizedIconW=document.getElementById('resizedIconW');
+                const resizedIconH=document.getElementById('resizedIconH');
+
+                const canvasDisplay=document.getElementById('canvasDisplay');
+                const canvasDisplayCell=document.getElementById('canvasDisplayCell');
+                
+                const textIcon=document.getElementById('textIcon');
+                const equalAspectRatio=document.getElementById('equalAspectRatio');
+
+                copyTextIcon.addEventListener('click', (evt)=> {
+                    selectCopyText(evt.target.value);
+                }, false);
+
+                resizedIconW.value=faviconSize;
+                resizedIconH.value=faviconSize;
+
+                const hourIcon=['','🕐','🕑','🕒','🕓','🕔','🕕','🕖','🕗','🕘','🕙','🕚','🕛'];
+                const halfHourIcon=['','🕜','🕝','🕞','🕟','🕠','🕡','🕢','🕣','🕤','🕥','🕦','🕧'];
+
+                const currentDatetime=(new Date());
+                let currentHour=currentDatetime.getHours();
+                currentHour=(currentHour>12) ? (currentHour-12) : currentHour;
+                let faviconIcon=hourIcon[currentHour];
+                let currentMin=currentDatetime.getMinutes();
+                faviconIcon=(currentMin>30) ? (halfHourIcon[currentHour]) : faviconIcon; 
+                
+
+                canvasDisplayCell['style']['width']=`${canvasDisplayCell.clientWidth}px`;
+                canvasDisplayCell['style']['height']=`${canvasDisplayCell.clientHeight}px`;
+
+                canvasDisplay['style']['max-width']=`${canvasDisplayCell.clientWidth}px`;
+                canvasDisplay['style']['max-height']=`calc( ${canvasDisplayCell.clientHeight}px - 1.875rem - 4px )`;
+
+                textIcon.innerText=faviconIcon;
+               
+                let _scale=window.devicePixelRatio*2;
+                let w,h,fontSize,canvas,ctx,_x,_y,faviconTag;
+
+                async function generateFavicon(sizeW,sizeH,icon) {
+                    textIcon.innerText=icon;
+
+                    w=sizeW;
+                    h=sizeH;
+                    fontSize=sizeH/_scale;
+
+                    canvas=document.createElement('canvas');
+                    canvas.width=w;
+                    canvas.height=h;
+
+                    canvas['style']['margin']='1px auto';
+                    canvas['style']['width']=`${w/_scale}px`;
+                    canvas['style']['height']=`${h/_scale}px`;
+                    canvas['style']['border']='1px dotted #6c757d';
+                    canvas['style']['background']='transparent';
+
+                    ctx=canvas.getContext('2d');
+                    ctx.scale(_scale,_scale);
+
+                    ctx.font = `${fontSize}px Segoe UI Symbol`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline='middle';
+                    ctx.direction='ltr';
+                    ctx.globalAlpha=1.0;
+                    ctx.fontVariantCaps='unicase';
+                    ctx.fontKerning='auto';
+                    ctx.fontStretch='normal';
+                    ctx.filter='none';
+                    ctx.globalCompositeOperation='source-over';
+                    ctx.imageSmoothingEnabled=true;
+                    ctx.imageSmoothingQuality='high';
+                    ctx.lineCap='butt';
+                    ctx.lineDashOffset=0;
+                    ctx.lineJoin='miter';
+                    ctx.miterLimit=10;
+                    ctx.shadowBlur=0;
+                    ctx.shadowColor='rgba(0, 0, 0, 0)';
+                    ctx.shadowOffsetX=0;
+                    ctx.shadowOffsetY=0;
+                    ctx.textRendering='auto';
+                    
+                    _x=((canvas.width/_scale)/2);
+                    _y=((canvas.height/_scale)/2);
+
+                    ctx.fillStyle=setColor.value;
+                    ctx.strokeStyle=setColor.value;
+                    ctx.fillText(icon, _x, _y);
+                    
+                    if (canvasDisplay.children.length>0) {
+                      canvasDisplay.removeChild(canvasDisplay.children[0]);
+                    }
+                    canvasDisplay.appendChild(canvas);
+                    document.getElementById('faviconDimensionsDisplay').innerText=`${canvas.width}px × ${canvas.height}px`;
+
+                    return new Promise(resolve => resolve(canvas.toDataURL()));
+                }
+                let iconData = await generateFavicon(faviconSize,faviconSize,faviconIcon);
+
+                async function renderIcon() {
+                    canvas.getContext('2d').clearRect(0, 0,w,h);
+
+                    iconData = await generateFavicon(resizedIconW.value,resizedIconH.value,faviconIcon);
+                    saveImageBtn.value=iconData;
+                    faviconTag.href=iconData;
+
+                    await new Promise((resolve, reject) => setTimeout(resolve, 500));
+                }
+                resizedIconW.addEventListener('change', async(evt)=>{
+                    if(equalAspectRatio.checked) {
+                        resizedIconH.value=evt.target.value;
+                    }
+                    renderIcon();
+                },false);
+
+                resizedIconH.addEventListener('change', async(evt)=>{
+                    if(equalAspectRatio.checked) {
+                        resizedIconW.value=evt.target.value;
+                    }
+                    renderIcon();
+                },false);
+
+                setColor.addEventListener('input', async(evt)=>{
+                    renderIcon();
+                },false);
+
+                let categorySelection=document.querySelectorAll('input[name="category"]');
+                categorySelection.forEach((node) => {
+                    node.addEventListener('click', async(evt)=> {
+                        let categoryStr=evt.target.value;
+                        faviconIcon=document.getElementById(categoryStr).value;
+                        renderIcon();
+                    }, false);
+                });
+
+                equalAspectRatio.addEventListener('click', async(evt)=> {
+                    if(equalAspectRatio.checked) {
+                        faviconSize=Math.min(resizedIconW.value,resizedIconH.value);
+                        resizedIconW.value=faviconSize;
+                        resizedIconH.value=faviconSize;
+                    }
+                    renderIcon();
+                }, false);
+
+                let saveImageBtn=document.getElementById('saveImageBtn');
+                saveImageBtn.value=iconData;
+                saveImageBtn.addEventListener('click', (evt)=> {
+                    let downloadLink=document.createElement('a');
+                    downloadLink.href=saveImageBtn.value;
+
+                    downloadLink.download=`${resizedIconW.value}w_${resizedIconH.value}h.png`;
+                    downloadLink.click();
+                }, false);
+
+                let linkTags=document.getElementsByTagName('link');
+                let faviconIsMissing=true;
+                for(let linkTag of linkTags) {
+                    if( linkTag.hasAttribute('rel') && (linkTag.rel.includes('icon')) ) {
+                        faviconIsMissing=false;
+                        faviconTag=linkTag;
+                        console.log('favicon tag exists');
+                        linkTag.type='image/x-icon';
+                        console.log('Generate favicon here.');
+                        linkTag.href=iconData;
+                        break;
+                    }
+                }
+                if(faviconIsMissing) {
+                    console.log('favicon tag is missing');
+                    console.log('[Tag missing] Generate favicon here');
+                    faviconTag=document.createElement('link');
+                    faviconTag.rel='icon';
+                    faviconTag.type='image/x-icon';
+                    faviconTag.href=iconData;
+                    document.head.appendChild(faviconTag);
+                }
+            });
+        </script>
+      </body>
+</html>
